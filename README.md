@@ -1,4 +1,4 @@
-# Cat-Dog Classification
+# Cat-Dog Image Classification
 
 ## Requirements
 
