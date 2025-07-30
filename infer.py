@@ -15,7 +15,7 @@ def main():
         device = 'cpu'
     else:
         device = 'cuda'
-        print('CUDA Device:', torch.cuda.get_device_name(device))
+        # print('CUDA Device:', torch.cuda.get_device_name(device))
     model, _ = load_model_from_checkpoint(device=device)
     model.eval()
     transform = get_transform()
@@ -23,20 +23,16 @@ def main():
         if transform:
             image = transform(image)
     image = image.unsqueeze(0).to(device)
-    with torch.no_grad():
+    with torch.inference_mode():
         outputs = model(image)
         _, predicted = torch.max(outputs.data, 1)
         label = 'Cat' if predicted.item() else 'Dog'
-        print('Predicted:', label)
+        print(label)
 
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Cat-Dog Image Classification Inference')
     parser.add_argument('image_path', type=str)
-    # parser.add_argument('--model', type=str, default='efficientnet-b0-bin', choices=['efficientnet-b0-bin'],
-    #                     help='Model architecture (default: resnet18)')
-    # parser.add_argument('--checkpoint', type=str, default='',
-    #                     help='Path to the saved model checkpoint')
     parser.add_argument('--cpu', action=argparse.BooleanOptionalAction, help='Whether to only use CPU')
     return parser.parse_args()
 
@@ -49,7 +45,7 @@ class CatDogModelA(nn.Module):
 
     def __init__(self):
         super(CatDogModelA, self).__init__()
-        self.net = torchvision.models.efficientnet_b0()
+        self.net = torchvision.models.efficientnet_b0(weights=None)
         for i in range(6):
             for param in self.net.features[i].parameters():
                 param.requires_grad = False
@@ -78,7 +74,7 @@ def load_model(model, optimizer, checkpoint_path):
     del checkpoint['model_state_dict']
     optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     del checkpoint['optimizer_state_dict']
-    print('Model loaded:', checkpoint_path)
+    # print('Model loaded:', checkpoint_path)
     return checkpoint
 
 
